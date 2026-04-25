@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Suryansh OS</title>
+
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    background: #050505;
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.terminal {
+    width: 85%;
+    max-width: 900px;
+    height: 80vh;
+    background: #0d0d0d;
+    border-radius: 12px;
+    padding: 20px;
+    overflow-y: auto;
+    box-shadow: 0 0 40px rgba(180,120,255,0.4);
+}
+
+.line { margin: 6px 0; }
+
+.system { color: #d0a9ff; }
+.info { color: #66cfff; }
+.success { color: #66ff99; }
+.warning { color: #ffe066; }
+.error { color: #ff6b81; }
+
+.input-line { display: flex; margin-top: 10px; }
+.prompt { color: #d0a9ff; margin-right: 8px; }
+
+input {
+    background: none;
+    border: none;
+    outline: none;
+    color: #ffe066;
+    width: 100%;
+    font-family: inherit;
+}
+</style>
+</head>
+
+<body>
+
+<div class="terminal" id="terminal">
+    <div class="system">⚡ Suryansh OS FINAL</div>
+
+    <div class="input-line">
+        <span class="prompt">></span>
+        <input id="input" disabled autofocus>
+    </div>
+</div>
+
+<script>
+const terminal = document.getElementById("terminal");
+const input = document.getElementById("input");
+
+let gameActive=false, num=0, tries=0;
+
+// history
+let history=[], hIndex=0;
+
+// print
+function print(text, cls=""){
+    let d=document.createElement("div");
+    d.className="line dynamic "+cls;
+    d.innerHTML=text;
+    terminal.insertBefore(d, terminal.lastElementChild);
+    terminal.scrollTop=terminal.scrollHeight;
+}
+
+// type
+function type(text, cls="", speed=20){
+    return new Promise(res=>{
+        let d=document.createElement("div");
+        d.className="line dynamic "+cls;
+        terminal.insertBefore(d, terminal.lastElementChild);
+        let i=0;
+        function t(){
+            if(i<text.length){
+                d.textContent+=text[i++];
+                setTimeout(t, speed+Math.random()*20);
+            } else res();
+            terminal.scrollTop=terminal.scrollHeight;
+        }
+        t();
+    });
+}
+
+// boot
+async function boot(){
+    await type("🚀 Booting Suryansh OS...", "system");
+    await type("🧠 Initializing brain...", "info");
+    await type("⚠️ Warning: Overthinking module loaded", "warning");
+    await type("✅ System ready", "success");
+    await type("💡 Type 'help'... or just guess randomly 😏", "info");
+
+    input.disabled=false;
+}
+
+// game
+function startGame(){
+    gameActive=true;
+    num=Math.floor(Math.random()*20)+1;
+    tries=5;
+    type("🎮 Guess the number (1–20). 5 tries. I believe in you… barely 😏","system");
+}
+
+function gameHandler(v){
+    let g=Number(v);
+    if(!g||g<1||g>20){ print("🤦 that's not even valid","error"); return; }
+
+    tries--;
+
+    if(g===num){
+        type("🎉 You got it. Either luck or secret powers 🧠","success");
+        gameActive=false;
+    }
+    else if(tries===0){
+        type("💀 You lost. Even my calculator is judging you.","error");
+        gameActive=false;
+    }
+    else{
+        let msg = g<num ? "📉 Too low" : "📈 Too high";
+        type(msg+" | "+tries+" attempts left","info");
+    }
+}
+
+// commands
+async function cmd(c){
+
+    const roasts=[
+        "You really typed that huh 😭",
+        "Confidence level: too high",
+        "Interesting choice… not a good one though",
+        "That’s bold… and wrong",
+    ];
+
+    switch(c){
+
+        case "help":
+            await type("🧠 Commands (read carefully this time):","system");
+            await type("who is suryansh","info");
+            await type("projects","info");
+            await type("skills","info");
+            await type("game","info");
+            await type("clear","info");
+            await type("sudo hack","warning");
+            await type("matrix","warning");
+            await type("self destruct","error");
+            break;
+
+        case "who is suryansh":
+            await type("🔍 Searching identity...","system");
+            await type("🧑‍💻 A developer in progress.","info");
+            await type("Breaks code → fixes it → repeats.","info");
+            await type("📈 Growth rate: increasing","success");
+            break;
+
+        case "projects":
+            await type("📂 Loading projects...","system");
+            await type("🕳️ Nothing here yet.","warning");
+            await type("💭 But the ambition is there.","info");
+            break;
+
+        case "skills":
+            await type("⚡ Skills scan:","system");
+            await type("🔍 Googling expert","success");
+            await type("🐛 Bug creator","warning");
+            await type("🧠 Thinks deeply… sometimes too deeply","info");
+            break;
+
+        case "sudo hack":
+            await type("🚨 ACCESS DENIED","error");
+            await type("📡 Tracing you... just kidding 😏","warning");
+            break;
+
+        case "matrix":
+            await type("🟢 Wake up Neo...","success");
+            await type("The Matrix has you.","info");
+            break;
+
+        case "self destruct":
+            await type("💣 Initiating self destruct...","error");
+            await type("3... 2... 1...","warning");
+            await type("😐 Nothing happened. Budget issues.","info");
+            break;
+
+        case "game":
+            startGame();
+            break;
+
+        case "clear":
+            document.querySelectorAll(".dynamic").forEach(e=>e.remove());
+            break;
+
+        default:
+            await type("❌ Unknown command","error");
+            await type(roasts[Math.floor(Math.random()*roasts.length)],"warning");
+    }
+}
+
+// input
+input.addEventListener("keydown", e=>{
+
+    if(e.key==="Enter" && !input.disabled){
+        let val=input.value.trim();
+
+        history.push(val);
+        hIndex=history.length;
+
+        print("> "+val,"warning");
+
+        if(gameActive) gameHandler(val);
+        else cmd(val.toLowerCase());
+
+        input.value="";
+    }
+
+    // history navigation
+    if(e.key==="ArrowUp"){
+        if(hIndex>0){
+            hIndex--;
+            input.value=history[hIndex];
+        }
+    }
+
+    if(e.key==="ArrowDown"){
+        if(hIndex<history.length-1){
+            hIndex++;
+            input.value=history[hIndex];
+        } else {
+            input.value="";
+        }
+    }
+
+});
+
+boot();
+</script>
+
+</body>
+</html>
